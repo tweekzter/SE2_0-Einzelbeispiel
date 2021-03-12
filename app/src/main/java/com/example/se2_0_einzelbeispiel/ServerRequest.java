@@ -1,14 +1,15 @@
 package com.example.se2_0_einzelbeispiel;
 
-import android.widget.EditText;
-import android.widget.TextView;
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
+/**
+ * Handles a general server request. Sends the passed request to the specified host.
+ * @author Manuel Simon #00326348
+ */
 public class ServerRequest implements Runnable {
     private String request;
     private String response;
@@ -31,6 +32,7 @@ public class ServerRequest implements Runnable {
 
 
     public void run() {
+
         try {
             Socket socket = new Socket(host, port);
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
@@ -38,6 +40,8 @@ public class ServerRequest implements Runnable {
 
             out.writeBytes(request+"\n");
             response = in.readLine();
+
+            socket.close();
 
         } catch(IOException ex) {
             response = "Verbindungsfehler";
