@@ -8,6 +8,9 @@ import androidx.appcompat.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Main Activity of MatrikelMagic (aka SE2-Einzelbeispiel)
  * @author Manuel Simon #00326348
@@ -42,5 +45,65 @@ public class MainActivity extends AppCompatActivity {
         } catch(InterruptedException ex) {
             result.setText("Verbindungsfehler");
         }
+    }
+
+    /**
+     * Calculates and displays the index of any combination of two numbers
+     * that share a common divisor.
+     * 0 is discarded
+     * @param view
+     */
+    public void checkDivisors(View view) {
+        TextView tv = findViewById(R.id.matrikelnummer);
+        String input = tv.getText().toString();
+        int[] digits = new int[input.length()];
+        for(int i=0; i < input.length(); i++) {
+            digits[i] = Integer.parseInt(String.valueOf(input.charAt(i)));
+        }
+
+        int index1 = 0;
+        int index2 = 0;
+        boolean found = false;
+        for(int i=0; i < digits.length && !found; i++) {
+            List<Integer> divisors = calculateDivisors(digits[i]);
+            for(int j=i+1; j < digits.length && !found; j++) {
+                if(isDividableByAny(digits[j], divisors)) {
+                    index1 = i;
+                    index2 = j;
+                    found = true;
+                }
+            }
+        }
+
+        TextView result = findViewById(R.id.responseField);
+        String resultText = found ? "Index "+index1+" and "+index2+" haben gemeinsame Teiler!"
+                : "Keine gemeinsamen Teiler gefunden!";
+        result.setText(resultText);
+    }
+
+    private List<Integer> calculateDivisors(int digit) {
+        ArrayList<Integer> divisors = new ArrayList<>();
+        for(int i=2; i <= digit/2; i++) {
+            if(digit % i == 0)
+                divisors.add(i);
+        }
+        // + dividable by itself but discard 1
+        if(digit > 1)
+            divisors.add(digit);
+
+        return divisors;
+    }
+
+    private boolean isDividableByAny(int dividend, List<Integer> divisors) {
+        // discard 0
+        if(dividend == 0)
+            return false;
+
+        for(int divisor : divisors) {
+            if(dividend % divisor == 0 && dividend != 0)
+                return true;
+        }
+
+        return false;
     }
 }
