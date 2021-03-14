@@ -5,6 +5,8 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.widget.TextView;
 
@@ -16,6 +18,7 @@ import java.util.List;
  * @author Manuel Simon #00326348
  */
 public class MainActivity extends AppCompatActivity {
+    private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,18 +36,19 @@ public class MainActivity extends AppCompatActivity {
         TextView input = findViewById(R.id.matrikelnummer);
         String matrikelnummer = input.getText().toString();
 
-        ServerRequest request = new ServerRequest("se2-isys.aau.at:53212", matrikelnummer);
+        // risk of leaks but for practise reasons it will do
+        handler = new Handler() {
+            public void handleMessage(Message msg) {
+                Bundle b = msg.getData();
+                TextView result = findViewById(R.id.responseField);
+                result.setText(b.getString("response"));
+            }
+        };
+
+        ServerRequest request = new ServerRequest(
+                "se2-isys.aau.at:53212", matrikelnummer, handler);
         Thread t = new Thread(request);
         t.start();
-
-        TextView result = findViewById(R.id.responseField);
-        try {
-            t.join();
-            result.setText(request.getResponse());
-
-        } catch(InterruptedException ex) {
-            result.setText("Verbindungsfehler");
-        }
     }
 
     /**
